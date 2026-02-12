@@ -1,0 +1,14 @@
+{
+    "webapps": [
+        {
+            "name": "PLDT Admin",
+            "path": "8080",
+            "protocol": "http"
+        },
+        {
+            "name": "Portainer",
+            "path": "9443",
+            "protocol": "https"
+        }
+    ]
+}

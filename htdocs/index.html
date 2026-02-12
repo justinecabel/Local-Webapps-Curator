@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <style>
+    :root {
+      --bg-1: #0b0f1f;
+      --bg-2: #141b34;
+      --ink: #e7ecff;
+      --muted: #9aa6c9;
+      --accent: #5dd9c1;
+      --accent-2: #f7c651;
+      --card: rgba(255, 255, 255, 0.08);
+      --card-border: rgba(255, 255, 255, 0.12);
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+      --radius: 18px;
+      --mono: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      --sans: "Space Grotesk", "Segoe UI", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--ink);
+      min-height: 100vh;
+      background: radial-gradient(1200px 800px at 10% 10%, #1e2653 0%, rgba(30, 38, 83, 0.1) 50%, transparent 70%),
+        radial-gradient(1000px 700px at 90% 20%, #2d3f78 0%, rgba(45, 63, 120, 0.1) 50%, transparent 70%),
+        linear-gradient(160deg, var(--bg-1), var(--bg-2));
+      overflow-x: hidden;
+    }
+
+    .wrap {
+      padding: 48px 6vw 80px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: minmax(0, 1fr);
+      margin-bottom: 26px;
+    }
+
+    .title {
+      font-size: clamp(28px, 4vw, 48px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin: 0;
+    }
+
+    .stats {
+      display: flex;
+      gap: 12px;
+    }
+
+    .stat {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 999px;
+      padding: 8px 14px;
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      margin: 22px 0 18px;
+    }
+
+    .search {
+      position: relative;
+    }
+
+    .search input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      padding: 12px 18px;
+      color: var(--ink);
+      font-size: 14px;
+      outline: none;
+      transition: border 200ms ease, box-shadow 200ms ease;
+    }
+
+    .search input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(93, 217, 193, 0.25);
+    }
+
+    .sort {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      padding: 8px 14px;
+      color: var(--ink);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      position: relative;
+      padding: 18px;
+      border-radius: var(--radius);
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transform: translateY(10px);
+      opacity: 0;
+      animation: liftIn 500ms ease forwards;
+    }
+
+    .card:nth-child(3n + 1)::before,
+    .card:nth-child(3n + 2)::before,
+    .card:nth-child(3n + 3)::before {
+      content: "";
+      position: absolute;
+      inset: -30% 50% auto -30%;
+      height: 140px;
+      background: radial-gradient(circle, rgba(93, 217, 193, 0.35), transparent 70%);
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    .card:nth-child(3n + 2)::before {
+      background: radial-gradient(circle, rgba(247, 198, 81, 0.35), transparent 70%);
+    }
+
+    .card:nth-child(3n + 3)::before {
+      background: radial-gradient(circle, rgba(255, 115, 170, 0.35), transparent 70%);
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .card .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .card .actions a {
+      text-decoration: none;
+      color: #0b0f1f;
+      background: var(--accent);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: transform 200ms ease, box-shadow 200ms ease;
+    }
+
+    .card .actions a.secondary {
+      background: rgba(255, 255, 255, 0.18);
+      color: var(--ink);
+    }
+
+    .card .actions a:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(93, 217, 193, 0.25);
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      margin-top: 40px;
+      font-size: 15px;
+    }
+
+    @keyframes liftIn {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .sort {
+        justify-content: center;
+      }
+
+      .card {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div>
+        <h1 class="title">Local Webapps</h1>
+      </div>
+      <div class="stats" id="stats"></div>
+    </section>
+
+    <section class="controls">
+      <div class="search">
+        <input id="search" type="search" placeholder="Search" />
+      </div>
+      <button id="sort" class="sort" type="button">Sort: List</button>
+    </section>
+
+    <section class="grid" id="grid"></section>
+    <div class="empty" id="empty" hidden>No matches yet. Try a different search.</div>
+  </div>
+
+  <script>
+    const baseHost = window.location.hostname || "localhost";
+    const grid = document.getElementById("grid");
+    const stats = document.getElementById("stats");
+    const emptyState = document.getElementById("empty");
+    const sortBtn = document.getElementById("sort");
+    const searchInput = document.getElementById("search");
+
+    let apps = [];
+    let sortMode = "list";
+
+    const buildUrl = (app) => {
+      const protocol = app.protocol || "http";
+      return `${protocol}://${baseHost}:${app.path}`;
+    };
+
+    const renderStats = (items) => {
+      stats.innerHTML = "";
+      const div = document.createElement("div");
+      div.className = "stat";
+      div.textContent = `${items.length} apps`;
+      stats.appendChild(div);
+    };
+
+    const renderCards = (items) => {
+      grid.innerHTML = "";
+      if (!items.length) {
+        emptyState.hidden = false;
+        return;
+      }
+      emptyState.hidden = true;
+
+      items.forEach((app, index) => {
+        const card = document.createElement("article");
+        card.className = "card";
+        card.style.animationDelay = `${index * 40}ms`;
+
+        const url = buildUrl(app);
+
+        card.innerHTML = `
+          <h3>${app.name}</h3>
+          <div class="actions">
+            <a href="${url}" target="_blank" rel="noopener">Open</a>
+            <a class="secondary" href="${url}" target="_self">Open Here</a>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    };
+
+    const applyFilters = () => {
+      const query = searchInput.value.trim().toLowerCase();
+      let filtered = apps.filter((app) => {
+        const protocol = app.protocol || "http";
+        return `${app.name} ${protocol} ${app.path}`.toLowerCase().includes(query);
+      });
+
+      if (sortMode === "list") {
+        filtered = filtered.sort((a, b) => a._index - b._index);
+      } else if (sortMode === "az") {
+        filtered = filtered.sort((a, b) => a.name.localeCompare(b.name));
+      } else {
+        filtered = filtered.sort((a, b) => b.name.localeCompare(a.name));
+      }
+
+      renderCards(filtered);
+      renderStats(filtered);
+    };
+
+    const toggleSort = () => {
+      if (sortMode === "list") {
+        sortMode = "az";
+        sortBtn.textContent = "Sort: A-Z";
+      } else if (sortMode === "az") {
+        sortMode = "za";
+        sortBtn.textContent = "Sort: Z-A";
+      } else {
+        sortMode = "list";
+        sortBtn.textContent = "Sort: List";
+      }
+      applyFilters();
+    };
+
+    sortBtn.addEventListener("click", toggleSort);
+    searchInput.addEventListener("input", applyFilters);
+
+    fetch("/list.json")
+      .then((response) => response.json())
+      .then((data) => {
+        const list = Array.isArray(data.webapps) ? data.webapps : [];
+        apps = list.map((app, index) => ({ ...app, _index: index }));
+        applyFilters();
+      })
+      .catch((error) => {
+        emptyState.hidden = false;
+        emptyState.textContent = `Error loading list: ${error.message}`;
+        grid.innerHTML = "";
+        stats.innerHTML = "";
+      });
+  </script>
+</body>
+</html>
