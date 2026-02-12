@@ -1,0 +1,14 @@
+{
+    "webapps": [
+        {
+            "name": "web app 1",
+            "path": "8080",
+            "protocol": "http"
+        },
+        {
+            "name": "webapp 2",
+            "path": "9443",
+            "protocol": "https"
+        }
+    ]
+}
