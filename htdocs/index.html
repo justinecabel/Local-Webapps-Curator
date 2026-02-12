@@ -12,12 +12,57 @@
       --muted: #9aa6c9;
       --accent: #5dd9c1;
       --accent-2: #f7c651;
+      --glow-1: #1e2653;
+      --glow-1-soft: rgba(30, 38, 83, 0.1);
+      --glow-2: #2d3f78;
+      --glow-2-soft: rgba(45, 63, 120, 0.1);
       --card: rgba(255, 255, 255, 0.08);
       --card-border: rgba(255, 255, 255, 0.12);
       --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+      --control-bg: rgba(255, 255, 255, 0.08);
+      --control-border: rgba(255, 255, 255, 0.18);
+      --secondary-btn-bg: rgba(255, 255, 255, 0.18);
+      --control-height: 42px;
+      --status-up-fg: #6ce8b4;
+      --status-up-bg: rgba(108, 232, 180, 0.12);
+      --status-up-border: rgba(108, 232, 180, 0.4);
+      --status-down-fg: #ff8e95;
+      --status-down-bg: rgba(255, 142, 149, 0.12);
+      --status-down-border: rgba(255, 142, 149, 0.45);
+      --status-check-fg: #f7c651;
+      --status-check-bg: rgba(247, 198, 81, 0.12);
+      --status-check-border: rgba(247, 198, 81, 0.45);
       --radius: 18px;
       --mono: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
       --sans: "Space Grotesk", "Segoe UI", Arial, sans-serif;
+    }
+
+    :root[data-theme="light"] {
+      --bg-1: #f6f8ff;
+      --bg-2: #e8edff;
+      --ink: #161b33;
+      --muted: #475372;
+      --accent: #1f8f7b;
+      --accent-2: #b6861b;
+      --glow-1: #cfd9ff;
+      --glow-1-soft: rgba(207, 217, 255, 0.38);
+      --glow-2: #d8e3ff;
+      --glow-2-soft: rgba(216, 227, 255, 0.36);
+      --card: rgba(255, 255, 255, 0.74);
+      --card-border: rgba(22, 27, 51, 0.14);
+      --shadow: 0 16px 44px rgba(36, 50, 98, 0.14);
+      --control-bg: rgba(255, 255, 255, 0.92);
+      --control-border: rgba(22, 27, 51, 0.36);
+      --secondary-btn-bg: rgba(22, 27, 51, 0.16);
+      --status-up-fg: #11694f;
+      --status-up-bg: rgba(17, 105, 79, 0.14);
+      --status-up-border: rgba(17, 105, 79, 0.34);
+      --status-down-fg: #9c2431;
+      --status-down-bg: rgba(156, 36, 49, 0.14);
+      --status-down-border: rgba(156, 36, 49, 0.34);
+      --status-check-fg: #8a5a00;
+      --status-check-bg: rgba(138, 90, 0, 0.14);
+      --status-check-border: rgba(138, 90, 0, 0.34);
     }
 
     * {
@@ -29,8 +74,8 @@
       font-family: var(--sans);
       color: var(--ink);
       min-height: 100vh;
-      background: radial-gradient(1200px 800px at 10% 10%, #1e2653 0%, rgba(30, 38, 83, 0.1) 50%, transparent 70%),
-        radial-gradient(1000px 700px at 90% 20%, #2d3f78 0%, rgba(45, 63, 120, 0.1) 50%, transparent 70%),
+      background: radial-gradient(1200px 800px at 10% 10%, var(--glow-1) 0%, var(--glow-1-soft) 50%, transparent 70%),
+        radial-gradient(1000px 700px at 90% 20%, var(--glow-2) 0%, var(--glow-2-soft) 50%, transparent 70%),
         linear-gradient(160deg, var(--bg-1), var(--bg-2));
       overflow-x: hidden;
     }
@@ -87,14 +132,20 @@
 
     .search input {
       width: 100%;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      height: var(--control-height);
+      background: var(--control-bg);
+      border: 1px solid var(--control-border);
       border-radius: 999px;
-      padding: 12px 18px;
+      padding: 0 18px;
       color: var(--ink);
       font-size: 14px;
       outline: none;
       transition: border 200ms ease, box-shadow 200ms ease;
+    }
+
+    .search input::placeholder {
+      color: var(--muted);
+      opacity: 1;
     }
 
     .search input:focus {
@@ -106,13 +157,35 @@
       display: inline-flex;
       gap: 8px;
       align-items: center;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      justify-content: center;
+      height: var(--control-height);
+      background: var(--control-bg);
+      border: 1px solid var(--control-border);
       border-radius: 999px;
-      padding: 8px 14px;
+      padding: 0 14px;
       color: var(--ink);
       font-size: 13px;
       cursor: pointer;
+    }
+
+    .theme-fab {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 30;
+      display: grid;
+      place-items: center;
+      background: var(--control-bg);
+      border: 1px solid var(--control-border);
+      border-radius: 999px;
+      width: 42px;
+      height: 42px;
+      color: var(--ink);
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
     }
 
     .grid {
@@ -192,21 +265,21 @@
     }
 
     .status-up {
-      color: #6ce8b4;
-      border-color: rgba(108, 232, 180, 0.4);
-      background: rgba(108, 232, 180, 0.12);
+      color: var(--status-up-fg);
+      border-color: var(--status-up-border);
+      background: var(--status-up-bg);
     }
 
     .status-down {
-      color: #ff8e95;
-      border-color: rgba(255, 142, 149, 0.45);
-      background: rgba(255, 142, 149, 0.12);
+      color: var(--status-down-fg);
+      border-color: var(--status-down-border);
+      background: var(--status-down-bg);
     }
 
     .status-checking {
-      color: #f7c651;
-      border-color: rgba(247, 198, 81, 0.45);
-      background: rgba(247, 198, 81, 0.12);
+      color: var(--status-check-fg);
+      border-color: var(--status-check-border);
+      background: var(--status-check-bg);
     }
 
     .card .actions {
@@ -228,7 +301,7 @@
     }
 
     .card .actions a.secondary {
-      background: rgba(255, 255, 255, 0.18);
+      background: var(--secondary-btn-bg);
       color: var(--ink);
     }
 
@@ -263,10 +336,16 @@
       .card {
         padding: 16px;
       }
+
+      .theme-fab {
+        top: 12px;
+        right: 12px;
+      }
     }
   </style>
 </head>
 <body>
+  <button id="theme" class="theme-fab" type="button" aria-label="Toggle theme" title="Toggle theme">☾</button>
   <div class="wrap">
     <section class="hero">
       <div>
@@ -293,11 +372,40 @@
     const emptyState = document.getElementById("empty");
     const sortBtn = document.getElementById("sort");
     const searchInput = document.getElementById("search");
+    const themeBtn = document.getElementById("theme");
 
     let apps = [];
     let sortMode = "list";
     const statusByApp = new Map();
     const PROBE_TIMEOUT_MS = 2500;
+    const THEME_KEY = "theme-mode";
+    let themeMode = "dark";
+
+    const applyTheme = (mode) => {
+      const root = document.documentElement;
+      root.setAttribute("data-theme", mode);
+      const isLight = mode === "light";
+      themeBtn.textContent = isLight ? "☀" : "☾";
+      const label = isLight ? "Light theme enabled" : "Dark theme enabled";
+      themeBtn.setAttribute("aria-label", `${label}. Click to switch.`);
+      themeBtn.setAttribute("title", `${label}. Click to switch.`);
+    };
+
+    const loadTheme = () => {
+      const saved = localStorage.getItem(THEME_KEY);
+      if (saved === "light" || saved === "dark") {
+        themeMode = saved;
+      } else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+        themeMode = "light";
+      }
+      applyTheme(themeMode);
+    };
+
+    const toggleTheme = () => {
+      themeMode = themeMode === "light" ? "dark" : "light";
+      localStorage.setItem(THEME_KEY, themeMode);
+      applyTheme(themeMode);
+    };
 
     const buildUrl = (app) => {
       const protocol = app.protocol || "http";
@@ -438,6 +546,8 @@
 
     sortBtn.addEventListener("click", toggleSort);
     searchInput.addEventListener("input", applyFilters);
+    themeBtn.addEventListener("click", toggleTheme);
+    loadTheme();
 
     fetch("/list.json")
       .then((response) => response.json())
