@@ -159,6 +159,56 @@
       font-size: 18px;
     }
 
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .status::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: currentColor;
+      opacity: 0.9;
+    }
+
+    .status-up {
+      color: #6ce8b4;
+      border-color: rgba(108, 232, 180, 0.4);
+      background: rgba(108, 232, 180, 0.12);
+    }
+
+    .status-down {
+      color: #ff8e95;
+      border-color: rgba(255, 142, 149, 0.45);
+      background: rgba(255, 142, 149, 0.12);
+    }
+
+    .status-checking {
+      color: #f7c651;
+      border-color: rgba(247, 198, 81, 0.45);
+      background: rgba(247, 198, 81, 0.12);
+    }
+
     .card .actions {
       display: flex;
       gap: 10px;
@@ -246,10 +296,71 @@
 
     let apps = [];
     let sortMode = "list";
+    const statusByApp = new Map();
+    const PROBE_TIMEOUT_MS = 2500;
 
     const buildUrl = (app) => {
       const protocol = app.protocol || "http";
       return `${protocol}://${baseHost}:${app.path}`;
+    };
+
+    const normalizeStatus = (status) => {
+      const value = String(status || "").trim().toLowerCase();
+      if (value === "up") return "up";
+      if (value === "down") return "down";
+      return "checking";
+    };
+
+    const getStatusLabel = (status) => {
+      if (status === "up") return "UP";
+      if (status === "down") return "DOWN";
+      return "CHECKING";
+    };
+
+    const getAppKey = (app) => `${app.name}::${app.protocol || "http"}::${app.path}`;
+
+    const setAppStatus = (app, status) => {
+      statusByApp.set(getAppKey(app), normalizeStatus(status));
+    };
+
+    const getAppStatus = (app) => {
+      const stored = statusByApp.get(getAppKey(app));
+      if (stored) return stored;
+      return normalizeStatus(app.status);
+    };
+
+    const updateStatusBadge = (app) => {
+      const key = getAppKey(app);
+      const badge = grid.querySelector(`[data-app-key="${CSS.escape(key)}"]`);
+      if (!badge) return;
+      const status = getAppStatus(app);
+      badge.classList.remove("status-up", "status-down", "status-checking");
+      badge.classList.add(`status-${status}`);
+      badge.textContent = getStatusLabel(status);
+    };
+
+    const probeAppStatus = async (app) => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
+      const url = buildUrl(app);
+
+      try {
+        await fetch(url, {
+          mode: "no-cors",
+          cache: "no-store",
+          signal: controller.signal
+        });
+        setAppStatus(app, "up");
+      } catch (_) {
+        setAppStatus(app, "down");
+      } finally {
+        clearTimeout(timeoutId);
+        updateStatusBadge(app);
+      }
+    };
+
+    const refreshStatuses = async () => {
+      await Promise.all(apps.map((app) => probeAppStatus(app)));
     };
 
     const renderStats = (items) => {
@@ -274,9 +385,14 @@
         card.style.animationDelay = `${index * 40}ms`;
 
         const url = buildUrl(app);
+        const status = getAppStatus(app);
+        const key = getAppKey(app);
 
         card.innerHTML = `
-          <h3>${app.name}</h3>
+          <div class="card-head">
+            <h3>${app.name}</h3>
+            <span class="status status-${status}" data-app-key="${key}">${getStatusLabel(status)}</span>
+          </div>
           <div class="actions">
             <a href="${url}" target="_blank" rel="noopener">Open</a>
             <a class="secondary" href="${url}" target="_self">Open Here</a>
@@ -328,7 +444,9 @@
       .then((data) => {
         const list = Array.isArray(data.webapps) ? data.webapps : [];
         apps = list.map((app, index) => ({ ...app, _index: index }));
+        apps.forEach((app) => setAppStatus(app, app.status));
         applyFilters();
+        refreshStatuses();
       })
       .catch((error) => {
         emptyState.hidden = false;
