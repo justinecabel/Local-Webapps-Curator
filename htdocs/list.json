@@ -3,12 +3,26 @@
         {
             "name": "web app 1",
             "path": "8080",
-            "protocol": "http"
+            "protocol": "http",
+            "webapp": true
         },
         {
             "name": "webapp 2",
             "path": "9443",
-            "protocol": "https"
+            "protocol": "https",
+            "webapp": true
+        }
+    ],
+    "webapps": [
+        {
+            "name": "web app 1",
+            "port": "8080",
+            "webapp": false
+        },
+        {
+            "name": "webapp 2",
+            "port": "9443",
+            "webapp": false
         }
     ]
 }
